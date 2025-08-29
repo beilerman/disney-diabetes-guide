@@ -1,0 +1,45 @@
+{
+  "parks": [
+    {
+      "id": "hollywood-studios",
+      "name": "Disney's Hollywood Studios",
+      "subtitle": "Your Guide to a Carb-Conscious Day in the Movies",
+      "lands": [
+        "Hollywood Boulevard", "Echo Lake", "Grand Avenue", "Star Wars: Galaxy's Edge", 
+        "Toy Story Land", "Animation Courtyard", "Sunset Boulevard", "Commissary Lane"
+      ],
+      "menuItems": [
+        { "land": "Star Wars: Galaxy's Edge", "restaurant": "Ronto Roasters", "name": "Ronto Wrap", "description": "Roasted Pork, Grilled Pork Sausage, Peppercorn Sauce, and a Tangy Slaw wrapped in Pita Bread.", "calories": 680, "carbs": 45, "fat": 40, "type": "food", "vegetarian": false, "isFried": false },
+        { "land": "Star Wars: Galaxy's Edge", "restaurant": "Ronto Roasters", "name": "Andoan Fruit with Muja Sauce", "description": "A mix of jicama, cucumber, pineapple, melon and dragon fruit with a tamarind-spiced sauce.", "calories": 150, "carbs": 35, "fat": 1, "type": "food", "vegetarian": true, "isFried": false },
+        { "land": "Toy Story Land", "restaurant": "Woody's Lunch Box", "name": "Tomato-Basil Soup", "description": "A creamy tomato soup served as a side.", "calories": 150, "carbs": 15, "fat": 8, "type": "food", "vegetarian": true, "isFried": false },
+        { "land": "Sunset Boulevard", "restaurant": "Rosie's All-American", "name": "Grilled Chicken Sandwich", "description": "Grilled chicken breast with lettuce and tomato on a brioche bun, served with fries.", "calories": 660, "carbs": 55, "fat": 28, "type": "food", "vegetarian": false, "isFried": false },
+        { "land": "Commissary Lane", "restaurant": "ABC Commissary", "name": "Mediterranean Salad with Chicken", "description": "Romaine, Kale, Cucumber, Tomato, Pickled Onion, Feta, Pepperoncini, Lemon-Herb Chicken, Red Wine Vinaigrette.", "calories": 480, "carbs": 18, "fat": 18, "type": "food", "vegetarian": false, "isFried": false }
+      ]
+    },
+    {
+      "id": "magic-kingdom",
+      "name": "Magic Kingdom Park",
+      "subtitle": "Navigating Nutrition in the Most Magical Place on Earth",
+      "lands": [
+        "Main Street, U.S.A.", "Adventureland", "Frontierland", "Liberty Square", "Fantasyland", "Tomorrowland"
+      ],
+      "menuItems": [
+        { "land": "Adventureland", "restaurant": "Aloha Isle", "name": "Pineapple DOLE Whip Cup", "description": "A tasty treat of DOLE Pineapple soft-serve.", "calories": 110, "carbs": 23, "fat": 2, "type": "food", "vegetarian": true, "isFried": false },
+        { "land": "Liberty Square", "restaurant": "Liberty Tree Tavern", "name": "Patriot's Platter - Turkey", "description": "Roasted Turkey Breast only, from the all-you-care-to-enjoy platter.", "calories": 250, "carbs": 2, "fat": 8, "type": "food", "vegetarian": false, "isFried": false },
+        { "land": "Frontierland", "restaurant": "Pecos Bill Tall Tale Inn", "name": "Chicken Rice Bowl", "description": "Yellow Rice topped with Chicken, Black Beans, and choice of toppings.", "calories": 650, "carbs": 75, "fat": 20, "type": "food", "vegetarian": false, "isFried": false }
+      ]
+    },
+    {
+      "id": "typhoon-lagoon",
+      "name": "Disney's Typhoon Lagoon Water Park",
+      "subtitle": "Cool, Carb-Conscious Choices for Your Water Park Day",
+      "lands": [
+        "Leaning Palms", "Typhoon Tilly's", "Lowtide Lou's", "Snack Shack"
+      ],
+      "menuItems": [
+        { "land": "Leaning Palms", "restaurant": "Leaning Palms", "name": "Chicken Wrap", "description": "Jerk-seasoned Chicken with a Vegetable Slaw and Coconut-Lime Dressing served with Chips.", "calories": 750, "carbs": 70, "fat": 40, "type": "food", "vegetarian": false, "isFried": false },
+        { "land": "Snack Shack", "restaurant": "Snack Shack", "name": "Caesar Salad with Chicken", "description": "Chilled, Grilled Chicken over Romaine with Croutons, Parmesan, and Caesar Dressing.", "calories": 520, "carbs": 18, "fat": 30, "type": "food", "vegetarian": false, "isFried": false }
+      ]
+    }
+  ]
+}

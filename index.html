@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disney Parks Diabetes Food Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .carb-low { background-color: #e6f4ea; border-left: 5px solid #4caf50; }
+        .carb-medium { background-color: #fff4e5; border-left: 5px solid #ff9800; }
+        .carb-high { background-color: #fdecea; border-left: 5px solid #f44336; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800" x-data="menuApp()" x-cloak>
+    <header class="bg-white shadow-md sticky top-0 z-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-blue-800" x-text="selectedPark ? selectedPark.name + ' Diabetes Guide' : 'Loading...'"></h1>
+                    <p class="text-sm text-gray-500" x-text="selectedPark ? selectedPark.subtitle : 'Select a park to begin'"></p>
+                </div>
+                <div class="hidden md:block">
+                    <button @click="scrollTo('tips')" class="text-gray-600 hover:text-blue-700 font-medium px-3 py-2 rounded-md">Park Tips</button>
+                    <button @click="scrollTo('menu')" class="text-gray-600 hover:text-blue-700 font-medium px-3 py-2 rounded-md">Menu Guide</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <section class="mb-8">
+            <label for="park-selector" class="block text-lg font-bold text-gray-800 mb-2">Select a Park</label>
+            <select id="park-selector" x-model="selectedParkId" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-lg p-3">
+                <template x-for="park in allData.parks" :key="park.id">
+                    <option :value="park.id" x-text="park.name"></option>
+                </template>
+            </select>
+        </section>
+
+        <section id="tips" class="bg-white p-6 rounded-lg shadow-sm mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Tips for a Healthy Park Experience</h2>
+             <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg text-blue-800 mb-2">Prioritize Protein</h3>
+                    <p class="text-gray-700">Especially if you're on a GLP-1 medication, focus on protein-rich dishes to increase satiety. Look for the 🧪 marker on our guide for suggestions like grilled meats, fish, and plant-based proteins.</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg text-blue-800 mb-2">Plan Your Portions</h3>
+                    <p class="text-gray-700">Portion sizes can be large. Sharing entrees or choosing snacks can help manage carb intake. Use the Nutrition Tracker to monitor your intake and plan your insulin doses accordingly.</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg text-blue-800 mb-2">Be Mindful of Alcohol</h3>
+                    <p class="text-gray-700">If you choose to drink, be aware that alcohol can cause delayed hypoglycemia. Never drink on an empty stomach and monitor your blood sugar closely, even hours later.</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg text-blue-800 mb-2">Stay Hydrated</h3>
+                    <p class="text-gray-700">Drink plenty of water. Dehydration can affect blood sugar levels, and staying hydrated can also help with feelings of fullness. Carry a water bottle and refill it often.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="menu" x-show="selectedPark">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-2" x-text="selectedPark.name + ' Menu Guide'"></h2>
+            <p class="text-center text-gray-600 mb-8">Filter and search to find the best options for you.</p>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-8 sticky top-20 z-10">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label for="search" class="block text-sm font-medium text-gray-700">Search Food</label>
+                        <input type="text" id="search" x-model="searchTerm" placeholder="e.g., 'Ronto Wrap'" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="maxCarbs" class="block text-sm font-medium text-gray-700">Max Carbs (g)</label>
+                        <input type="number" id="maxCarbs" x-model.number="maxCarbs" placeholder="e.g., 40" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="sortBy" class="block text-sm font-medium text-gray-700">Sort By</label>
+                        <select id="sortBy" x-model="sortBy" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            <option value="name">Name (A-Z)</option>
+                            <option value="carbs_asc">Carbs (Low to High)</option>
+                            <option value="carbs_desc">Carbs (High to Low)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="land" class="block text-sm font-medium text-gray-700">Park Land</label>
+                        <select id="land" x-model="land" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            <option value="All">All Lands</option>
+                            <template x-for="landName in selectedPark.lands" :key="landName">
+                                <option :value="landName" x-text="landName"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="col-span-2 md:grid-cols-3 lg:col-span-4 mt-2 flex flex-wrap gap-x-6 gap-y-2 items-center">
+                        <div class="flex items-center">
+                            <input id="glp1_friendly" type="checkbox" x-model="showGLP1Only" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="glp1_friendly" class="ml-2 block text-sm font-medium text-gray-700">🧪 GLP-1 Friendly Only</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="vegetarian_only" type="checkbox" x-model="showVegetarianOnly" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="vegetarian_only" class="ml-2 block text-sm font-medium text-gray-700">Vegetarian Only</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="hide_drinks" type="checkbox" x-model="hideDrinks" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="hide_drinks" class="ml-2 block text-sm font-medium text-gray-700">Hide Drinks</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="item in filteredMenu" :key="item.name + item.restaurant">
+                    <div class="rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105 flex flex-col"
+                         :class="{
+                            'carb-low': item.carbs <= 20,
+                            'carb-medium': item.carbs > 20 && item.carbs <= 50,
+                            'carb-high': item.carbs > 50
+                         }">
+                        <div class="p-5 flex-grow">
+                            <h3 class="text-xl font-bold text-gray-900" x-text="item.name"></h3>
+                            <p class="text-sm text-gray-600 mt-1">
+                                <span x-text="item.restaurant"></span> - <span x-text="item.land"></span>
+                            </p>
+                            <p class="text-gray-700 mt-3 text-sm" x-text="item.description"></p>
+                            <div x-show="item.glp1Friendly" class="mt-3 inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-800">
+                                <svg class="w-4 h-4 mr-1.5 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.553L16.25 22.5l-.648-1.947a4.5 4.5 0 00-3.09-3.09L9.75 18l2.846-.813a4.5 4.5 0 003.09-3.09L16.25 11.25l.648 1.947a4.5 4.5 0 003.09 3.09L22.5 18l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+                                GLP-1 Friendly
+                            </div>
+                        </div>
+                        <div class="bg-white bg-opacity-50 p-4 border-t border-gray-200">
+                            <div class="flex justify-around items-center text-center">
+                                <div>
+                                    <p class="text-xs text-gray-500">Calories</p>
+                                    <p class="font-bold text-lg" x-text="item.calories"></p>
+                                </div>
+                                <div class="border-l-2 border-green-500 pl-4">
+                                    <p class="text-xs text-green-700 font-semibold">Carbs (g)</p>
+                                    <p class="font-bold text-2xl text-green-800" x-text="item.carbs"></p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Fat (g)</p>
+                                    <p class="font-bold text-lg" x-text="item.fat"></p>
+                                </div>
+                            </div>
+                             <button @click="addToTracker(item)" class="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Add to Tracker
+                             </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+             <div x-show="!loading && filteredMenu.length === 0" class="text-center py-16">
+                 <p class="text-xl text-gray-500">No items match your filters. Try adjusting your search.</p>
+             </div>
+        </section>
+    </main>
+
+    <div x-show="trackerItems.length > 0" x-cloak class="fixed bottom-4 right-4 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 z-50">
+        <div class="p-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-blue-800">Nutrition Tracker</h3>
+                <button @click="trackerExpanded = !trackerExpanded" class="text-gray-500 hover:text-gray-800">
+                    <svg x-show="!trackerExpanded" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                    <svg x-show="trackerExpanded" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center border-b pb-3 mb-3">
+                <div>
+                    <p class="text-xs text-gray-500">Calories</p>
+                    <p class="font-bold text-xl text-gray-800" x-text="totalCalories"></p>
+                </div>
+                <div>
+                    <p class="text-xs text-green-700 font-semibold">Carbs (g)</p>
+                    <p class="font-bold text-xl text-green-800" x-text="totalCarbs"></p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">Fat (g)</p>
+                    <p class="font-bold text-xl text-gray-800" x-text="totalFat"></p>
+                </div>
+            </div>
+            <div x-show="trackerExpanded" x-transition class="max-h-48 overflow-y-auto">
+                <ul class="space-y-2">
+                    <template x-for="(item, index) in trackerItems" :key="index">
+                        <li class="text-sm text-gray-700 flex justify-between items-center">
+                            <span class="truncate pr-2" x-text="item.name"></span>
+                            <span class="flex-shrink-0 text-xs font-mono bg-gray-100 px-2 py-1 rounded">
+                                <span x-text="`${item.carbs}c`"></span> / 
+                                <span x-text="`${item.fat}f`"></span>
+                            </span>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </div>
+        <button @click="trackerItems = []" class="w-full bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-700 font-medium py-2 text-sm transition-colors">
+            Clear All
+        </button>
+    </div>
+
+    <footer class="bg-white mt-12 border-t">
+        <div class="container mx-auto py-6 px-4 text-center text-gray-600">
+            <p class="text-sm">&copy; 2025 Disney Parks Diabetes Guide. This is an unofficial guide and not affiliated with The Walt Disney Company.</p>
+            <p class="text-xs mt-2"><strong>Disclaimer:</strong> Nutritional information is estimated and should be used as a guide only. Always consult with a healthcare professional for personal medical advice.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="script.js"></script>
+</body>
+</html>
