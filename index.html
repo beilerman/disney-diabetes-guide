@@ -194,10 +194,14 @@
                 </ul>
             </div>
         </div>
-        <button @click="trackerItems = []" class="w-full bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-700 font-medium py-2 text-sm transition-colors">
+    <button @click="trackerItems = []" class="w-full bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-700 font-medium py-2 text-sm transition-colors">
             Clear All
         </button>
     </div>
+
+    <button x-show="showBackToTop" x-transition x-cloak @click="scrollTop" class="fixed bottom-24 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none">
+        ↑
+    </button>
 
     <footer class="bg-white mt-12 border-t">
         <div class="container mx-auto py-6 px-4 text-center text-gray-600">
