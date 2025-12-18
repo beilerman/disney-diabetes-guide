@@ -8,10 +8,110 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .carb-low { background-color: #e6f4ea; border-left: 5px solid #4caf50; }
-        .carb-medium { background-color: #fff4e5; border-left: 5px solid #ff9800; }
-        .carb-high { background-color: #fdecea; border-left: 5px solid #f44336; }
+        .carb-low {
+            background: linear-gradient(135deg, #e6f4ea 0%, #f0fdf4 100%);
+            border-left: 6px solid #22c55e;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+        }
+        .carb-medium {
+            background: linear-gradient(135deg, #fff4e5 0%, #fef9ec 100%);
+            border-left: 6px solid #f59e0b;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
+        }
+        .carb-high {
+            background: linear-gradient(135deg, #fdecea 0%, #fef2f2 100%);
+            border-left: 6px solid #ef4444;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+        }
         [x-cloak] { display: none !important; }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animate-slide-in {
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        .menu-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 100;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .badge-animate {
+            animation: pulse-ring 2s infinite;
+        }
+
+        .favorite-btn {
+            transition: all 0.2s;
+        }
+
+        .favorite-btn:active {
+            transform: scale(0.9);
+        }
+
+        .chip {
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800" x-data="menuApp()" x-cloak>
@@ -31,43 +131,154 @@
         </div>
     </header>
 
-    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <section class="mb-8">
-            <label for="park-selector" class="block text-lg font-bold text-gray-800 mb-2">Select a Park</label>
-            <select id="park-selector" x-model="selectedParkId" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-lg p-3">
-                <template x-for="park in allData.parks" :key="park.id">
-                    <option :value="park.id" x-text="park.name"></option>
-                </template>
-            </select>
-        </section>
+    <!-- Toast Notification -->
+    <div x-show="showToast" x-transition class="toast bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <span x-text="toastMessage"></span>
+    </div>
 
-        <section id="tips" class="bg-white p-6 rounded-lg shadow-sm mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">Tips for a Healthy Park Experience</h2>
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Loading Skeleton -->
+        <div x-show="loading" class="space-y-8">
+            <div class="skeleton h-12 w-full rounded-lg"></div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="skeleton h-32 rounded-lg"></div>
+                <div class="skeleton h-32 rounded-lg"></div>
+                <div class="skeleton h-32 rounded-lg"></div>
+                <div class="skeleton h-32 rounded-lg"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="skeleton h-96 rounded-lg"></div>
+                <div class="skeleton h-96 rounded-lg"></div>
+                <div class="skeleton h-96 rounded-lg"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div x-show="!loading" class="animate-slide-in">
+            <section class="mb-8">
+                <label for="park-selector" class="block text-lg font-bold text-gray-800 mb-2">Select a Park</label>
+                <select id="park-selector" x-model="selectedParkId" class="block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:text-lg p-3 transition-all">
+                    <template x-for="park in allData.parks" :key="park.id">
+                        <option :value="park.id" x-text="park.name"></option>
+                    </template>
+                </select>
+            </section>
+
+            <!-- Daily Carb Goal Tracker -->
+            <section x-show="carbGoal > 0" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg mb-8">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xl font-bold">Daily Carb Goal</h3>
+                    <button @click="carbGoal = 0" class="text-white hover:text-gray-200 text-sm">Reset</button>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-full h-4 mb-2">
+                    <div class="progress-bar bg-white h-4 rounded-full" :style="`width: ${Math.min((totalCarbs / carbGoal) * 100, 100)}%`"></div>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span><span x-text="totalCarbs"></span>g consumed</span>
+                    <span><span x-text="carbGoal"></span>g goal (<span x-text="Math.max(carbGoal - totalCarbs, 0)"></span>g remaining)</span>
+                </div>
+            </section>
+
+            <section x-show="carbGoal === 0" class="bg-blue-50 border-2 border-blue-200 p-4 rounded-lg mb-8">
+                <div class="flex items-center gap-4">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div class="flex-grow">
+                        <h4 class="font-bold text-blue-900">Set Your Daily Carb Goal</h4>
+                        <p class="text-sm text-blue-700">Track your progress throughout the day</p>
+                    </div>
+                    <input type="number" x-model.number="carbGoal" placeholder="e.g., 150" class="w-32 px-4 py-2 rounded-lg border-2 border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                </div>
+            </section>
+
+        <section id="tips" class="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-lg mb-8 border border-blue-100">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Tips for a Healthy Park Experience</h2>
+                <p class="text-gray-600">Expert advice for managing diabetes at Disney Parks</p>
+            </div>
              <div class="grid md:grid-cols-2 gap-6">
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg text-blue-800 mb-2">Prioritize Protein</h3>
-                    <p class="text-gray-700">Especially if you're on a GLP-1 medication, focus on protein-rich dishes to increase satiety. Look for the 🧪 marker on our guide for suggestions like grilled meats, fish, and plant-based proteins.</p>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow border-l-4 border-blue-500">
+                    <div class="flex items-start gap-3">
+                        <div class="bg-blue-100 p-3 rounded-lg">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900 mb-2">Prioritize Protein</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed">Especially if you're on a GLP-1 medication, focus on protein-rich dishes to increase satiety. Look for the GLP-1 Friendly marker on our guide for suggestions like grilled meats, fish, and plant-based proteins.</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg text-blue-800 mb-2">Plan Your Portions</h3>
-                    <p class="text-gray-700">Portion sizes can be large. Sharing entrees or choosing snacks can help manage carb intake. Use the Nutrition Tracker to monitor your intake and plan your insulin doses accordingly.</p>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow border-l-4 border-green-500">
+                    <div class="flex items-start gap-3">
+                        <div class="bg-green-100 p-3 rounded-lg">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900 mb-2">Plan Your Portions</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed">Portion sizes can be large. Sharing entrees or choosing snacks can help manage carb intake. Use the Nutrition Tracker to monitor your intake and plan your insulin doses accordingly.</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg text-blue-800 mb-2">Be Mindful of Alcohol</h3>
-                    <p class="text-gray-700">If you choose to drink, be aware that alcohol can cause delayed hypoglycemia. Never drink on an empty stomach and monitor your blood sugar closely, even hours later.</p>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow border-l-4 border-yellow-500">
+                    <div class="flex items-start gap-3">
+                        <div class="bg-yellow-100 p-3 rounded-lg">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900 mb-2">Be Mindful of Alcohol</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed">If you choose to drink, be aware that alcohol can cause delayed hypoglycemia. Never drink on an empty stomach and monitor your blood sugar closely, even hours later.</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg text-blue-800 mb-2">Stay Hydrated</h3>
-                    <p class="text-gray-700">Drink plenty of water. Dehydration can affect blood sugar levels, and staying hydrated can also help with feelings of fullness. Carry a water bottle and refill it often.</p>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow border-l-4 border-cyan-500">
+                    <div class="flex items-start gap-3">
+                        <div class="bg-cyan-100 p-3 rounded-lg">
+                            <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900 mb-2">Stay Hydrated</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed">Drink plenty of water. Dehydration can affect blood sugar levels, and staying hydrated can also help with feelings of fullness. Carry a water bottle and refill it often.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section id="menu" x-show="selectedPark">
             <h2 class="text-3xl font-bold text-center text-gray-900 mb-2" x-text="selectedPark.name + ' Menu Guide'"></h2>
-            <p class="text-center text-gray-600 mb-8">Filter and search to find the best options for you.</p>
+            <p class="text-center text-gray-600 mb-1">Filter and search to find the best options for you.</p>
+            <p class="text-center text-sm text-blue-600 font-semibold mb-4">
+                <span x-show="filteredMenu.length > 0">
+                    Showing <span x-text="filteredMenu.length"></span> <span x-text="filteredMenu.length === 1 ? 'item' : 'items'"></span>
+                </span>
+            </p>
 
-            <div class="bg-white p-4 rounded-lg shadow-sm mb-8 sticky top-20 z-10">
+            <!-- Quick Filter Chips -->
+            <div class="flex flex-wrap gap-2 justify-center mb-6">
+                <button @click="maxCarbs = 20; sortBy = 'carbs_asc'" class="chip bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-green-200">
+                    Low Carb (&lt;20g)
+                </button>
+                <button @click="showGLP1Only = !showGLP1Only" class="chip px-4 py-2 rounded-full text-sm font-medium" :class="showGLP1Only ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'">
+                    GLP-1 Friendly
+                </button>
+                <button @click="showVegetarianOnly = !showVegetarianOnly" class="chip px-4 py-2 rounded-full text-sm font-medium" :class="showVegetarianOnly ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'">
+                    Vegetarian
+                </button>
+                <button @click="maxCarbs = 50; sortBy = 'carbs_asc'" class="chip bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-yellow-200">
+                    Moderate Carb (&lt;50g)
+                </button>
+                <button @click="showFavoritesOnly = !showFavoritesOnly" class="chip px-4 py-2 rounded-full text-sm font-medium" :class="showFavoritesOnly ? 'bg-red-500 text-white' : 'bg-red-100 text-red-700 hover:bg-red-200'">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path></svg>
+                        Favorites
+                    </span>
+                </button>
+                <button @click="resetFilters()" class="chip bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-200">
+                    Clear All Filters
+                </button>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-md mb-8 sticky top-20 z-10">
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <div>
                         <label for="search" class="block text-sm font-medium text-gray-700">Search Food</label>
@@ -113,91 +324,160 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="item in filteredMenu" :key="item.name + item.restaurant">
-                    <div class="rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105 flex flex-col"
+                    <div class="rounded-xl shadow-lg overflow-hidden menu-card flex flex-col relative"
                          :class="{
                             'carb-low': item.carbs <= 20,
                             'carb-medium': item.carbs > 20 && item.carbs <= 50,
                             'carb-high': item.carbs > 50
                          }">
-                        <div class="p-5 flex-grow">
-                            <h3 class="text-xl font-bold text-gray-900" x-text="item.name"></h3>
-                            <p class="text-sm text-gray-600 mt-1">
+                        <!-- Favorite Button -->
+                        <button @click="toggleFavorite(item)" class="favorite-btn absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-md hover:shadow-lg">
+                            <svg class="w-6 h-6" :class="isFavorite(item) ? 'text-red-500' : 'text-gray-400'" :fill="isFavorite(item) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Carb Level Badge -->
+                        <div class="absolute top-4 left-4 z-10">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold text-white shadow-md"
+                                  :class="{
+                                      'bg-green-500': item.carbs <= 20,
+                                      'bg-yellow-500': item.carbs > 20 && item.carbs <= 50,
+                                      'bg-red-500': item.carbs > 50
+                                  }">
+                                <span x-text="item.carbs <= 20 ? 'Low Carb' : item.carbs <= 50 ? 'Moderate' : 'High Carb'"></span>
+                            </span>
+                        </div>
+
+                        <div class="p-6 flex-grow">
+                            <h3 class="text-xl font-bold text-gray-900 mt-8" x-text="item.name"></h3>
+                            <p class="text-sm text-gray-600 mt-1 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 <span x-text="item.restaurant"></span> - <span x-text="item.land"></span>
                             </p>
-                            <p class="text-gray-700 mt-3 text-sm" x-text="item.description"></p>
-                            <div x-show="item.glp1Friendly" class="mt-3 inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-800">
-                                <svg class="w-4 h-4 mr-1.5 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.553L16.25 22.5l-.648-1.947a4.5 4.5 0 00-3.09-3.09L9.75 18l2.846-.813a4.5 4.5 0 003.09-3.09L16.25 11.25l.648 1.947a4.5 4.5 0 003.09 3.09L22.5 18l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
-                                GLP-1 Friendly
+                            <p class="text-gray-700 mt-3 text-sm leading-relaxed" x-text="item.description"></p>
+
+                            <!-- Tags -->
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <div x-show="item.glp1Friendly" class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200">
+                                    <svg class="w-4 h-4 mr-1.5 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.553L16.25 22.5l-.648-1.947a4.5 4.5 0 00-3.09-3.09L9.75 18l2.846-.813a4.5 4.5 0 003.09-3.09L16.25 11.25l.648 1.947a4.5 4.5 0 003.09 3.09L22.5 18l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+                                    GLP-1 Friendly
+                                </div>
+                                <div x-show="item.vegetarian" class="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-800 border border-purple-200">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3z" clip-rule="evenodd"></path></svg>
+                                    Vegetarian
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-white bg-opacity-50 p-4 border-t border-gray-200">
-                            <div class="flex justify-around items-center text-center">
-                                <div>
-                                    <p class="text-xs text-gray-500">Calories</p>
-                                    <p class="font-bold text-lg" x-text="item.calories"></p>
+
+                        <!-- Nutrition Info -->
+                        <div class="bg-white bg-opacity-60 backdrop-blur-sm p-4 border-t-2 border-white">
+                            <div class="grid grid-cols-3 gap-4 text-center mb-4">
+                                <div class="bg-white bg-opacity-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-600 font-medium mb-1">Calories</p>
+                                    <p class="font-bold text-xl text-gray-800" x-text="item.calories"></p>
                                 </div>
-                                <div class="border-l-2 border-green-500 pl-4">
-                                    <p class="text-xs text-green-700 font-semibold">Carbs (g)</p>
-                                    <p class="font-bold text-2xl text-green-800" x-text="item.carbs"></p>
+                                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 border-2 border-green-300">
+                                    <p class="text-xs text-green-700 font-bold mb-1">Carbs</p>
+                                    <p class="font-bold text-2xl text-green-800" x-text="item.carbs + 'g'"></p>
                                 </div>
-                                <div>
-                                    <p class="text-xs text-gray-500">Fat (g)</p>
-                                    <p class="font-bold text-lg" x-text="item.fat"></p>
+                                <div class="bg-white bg-opacity-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-600 font-medium mb-1">Fat</p>
+                                    <p class="font-bold text-xl text-gray-800" x-text="item.fat + 'g'"></p>
                                 </div>
                             </div>
-                             <button @click="addToTracker(item)" class="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                             <button @click="addToTracker(item)" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 font-semibold shadow-md flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                 Add to Tracker
                              </button>
                         </div>
                     </div>
                 </template>
             </div>
-             <div x-show="!loading && filteredMenu.length === 0" class="text-center py-16">
-                 <p class="text-xl text-gray-500">No items match your filters. Try adjusting your search.</p>
+             <div x-show="!loading && filteredMenu.length === 0" class="text-center py-16 bg-white rounded-xl shadow-sm">
+                 <div class="flex flex-col items-center">
+                     <svg class="w-24 h-24 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                     </svg>
+                     <h3 class="text-2xl font-bold text-gray-800 mb-2">No items found</h3>
+                     <p class="text-lg text-gray-500 mb-6">Try adjusting your filters or search terms</p>
+                     <button @click="resetFilters()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md">
+                         Clear All Filters
+                     </button>
+                 </div>
              </div>
         </section>
+        </div>
     </main>
 
-    <div x-show="trackerItems.length > 0" x-cloak class="fixed bottom-4 right-4 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 z-50">
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-lg font-bold text-blue-800">Nutrition Tracker</h3>
-                <button @click="trackerExpanded = !trackerExpanded" class="text-gray-500 hover:text-gray-800">
+    <!-- Mobile Quick Access Menu -->
+    <div class="md:hidden fixed bottom-20 left-4 z-40">
+        <button @click="scrollTo('menu')" class="bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 transition-all mb-3 flex items-center justify-center badge-animate">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+        <button @click="scrollTo('tips')" class="bg-green-600 text-white p-4 rounded-full shadow-2xl hover:bg-green-700 transition-all flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+        </button>
+    </div>
+
+    <div x-show="trackerItems.length > 0" x-cloak class="fixed bottom-4 right-4 w-96 max-w-[calc(100vw-2rem)] bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl border-2 border-blue-200 z-50 overflow-hidden animate-slide-in">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <h3 class="text-lg font-bold text-white">Nutrition Tracker</h3>
+                    <span class="bg-white text-blue-700 px-2 py-1 rounded-full text-xs font-bold" x-text="trackerItems.length"></span>
+                </div>
+                <button @click="trackerExpanded = !trackerExpanded" class="text-white hover:text-blue-100 transition-colors">
                     <svg x-show="!trackerExpanded" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
                     <svg x-show="trackerExpanded" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
             </div>
-            <div class="grid grid-cols-3 gap-2 text-center border-b pb-3 mb-3">
-                <div>
-                    <p class="text-xs text-gray-500">Calories</p>
-                    <p class="font-bold text-xl text-gray-800" x-text="totalCalories"></p>
+        </div>
+
+        <div class="p-4">
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-3 border-2 border-orange-200 text-center">
+                    <p class="text-xs text-orange-700 font-semibold mb-1">Calories</p>
+                    <p class="font-bold text-2xl text-orange-800" x-text="totalCalories"></p>
                 </div>
-                <div>
-                    <p class="text-xs text-green-700 font-semibold">Carbs (g)</p>
-                    <p class="font-bold text-xl text-green-800" x-text="totalCarbs"></p>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3 border-2 border-green-300 text-center">
+                    <p class="text-xs text-green-700 font-bold mb-1">Carbs</p>
+                    <p class="font-bold text-2xl text-green-800" x-text="totalCarbs + 'g'"></p>
                 </div>
-                <div>
-                    <p class="text-xs text-gray-500">Fat (g)</p>
-                    <p class="font-bold text-xl text-gray-800" x-text="totalFat"></p>
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 border-2 border-blue-200 text-center">
+                    <p class="text-xs text-blue-700 font-semibold mb-1">Fat</p>
+                    <p class="font-bold text-2xl text-blue-800" x-text="totalFat + 'g'"></p>
                 </div>
             </div>
-            <div x-show="trackerExpanded" x-transition class="max-h-48 overflow-y-auto">
-                <ul class="space-y-2">
-                    <template x-for="(item, index) in trackerItems" :key="index">
-                        <li class="text-sm text-gray-700 flex justify-between items-center">
-                            <span class="truncate pr-2" x-text="item.name"></span>
-                            <span class="flex-shrink-0 text-xs font-mono bg-gray-100 px-2 py-1 rounded">
-                                <span x-text="`${item.carbs}c`"></span> / 
-                                <span x-text="`${item.fat}f`"></span>
-                            </span>
-                        </li>
-                    </template>
-                </ul>
+
+            <div x-show="trackerExpanded" x-transition class="max-h-64 overflow-y-auto mb-3 space-y-2">
+                <template x-for="(item, index) in trackerItems" :key="index">
+                    <div class="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-300 transition-colors group">
+                        <div class="flex justify-between items-start gap-2">
+                            <div class="flex-grow min-w-0">
+                                <p class="text-sm font-semibold text-gray-800 truncate" x-text="item.name"></p>
+                                <div class="flex gap-3 mt-1 text-xs">
+                                    <span class="text-orange-600 font-medium"><span x-text="item.calories"></span> cal</span>
+                                    <span class="text-green-600 font-bold"><span x-text="item.carbs"></span>g carbs</span>
+                                    <span class="text-blue-600 font-medium"><span x-text="item.fat"></span>g fat</span>
+                                </div>
+                            </div>
+                            <button @click="removeFromTracker(index)" class="flex-shrink-0 text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
-        <button @click="trackerItems = []" class="w-full bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-700 font-medium py-2 text-sm transition-colors">
-            Clear All
-        </button>
+
+        <div class="flex border-t-2 border-gray-200">
+            <button @click="trackerItems = []" class="flex-1 bg-gradient-to-r from-red-50 to-red-100 text-red-700 hover:from-red-100 hover:to-red-200 font-semibold py-3 text-sm transition-all flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Clear All
+            </button>
+        </div>
     </div>
 
     <footer class="bg-white mt-12 border-t">
