@@ -17,6 +17,7 @@ document.addEventListener('alpine:init', () => {
         // Nutrition Tracker states
         trackerItems: [],
         trackerExpanded: false,
+        showBackToTop: false,
 
         // --- Initialization ---
         async init() {
@@ -42,6 +43,8 @@ document.addEventListener('alpine:init', () => {
                 this.land = 'All';
                 this.searchTerm = '';
             });
+
+            this.updateScrollPosition();
         },
 
         // --- Computed Properties (Getters) ---
@@ -121,8 +124,23 @@ document.addEventListener('alpine:init', () => {
             this.trackerExpanded = true;
         },
 
+        getScrollBehavior() {
+            return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+        },
+
         scrollTo(id) {
-            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+            const target = document.getElementById(id);
+            if (!target) {
+                return;
+            }
+            target.scrollIntoView({ behavior: this.getScrollBehavior() });
+        },
+        scrollTop() {
+            window.scrollTo({ top: 0, behavior: this.getScrollBehavior() });
+        },
+        updateScrollPosition() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            this.showBackToTop = scrollTop > 300;
         },
     }));
 });
