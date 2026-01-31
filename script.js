@@ -124,18 +124,23 @@ document.addEventListener('alpine:init', () => {
             this.trackerExpanded = true;
         },
 
+        getScrollBehavior() {
+            return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+        },
+
         scrollTo(id) {
             const target = document.getElementById(id);
             if (!target) {
                 return;
             }
-            target.scrollIntoView({ behavior: 'smooth' });
+            target.scrollIntoView({ behavior: this.getScrollBehavior() });
         },
         scrollTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: this.getScrollBehavior() });
         },
         updateScrollPosition() {
-            this.showBackToTop = window.scrollY > 300;
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            this.showBackToTop = scrollTop > 300;
         },
     }));
 });
