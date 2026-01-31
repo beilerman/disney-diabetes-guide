@@ -44,9 +44,7 @@ document.addEventListener('alpine:init', () => {
                 this.searchTerm = '';
             });
 
-            window.addEventListener('scroll', () => {
-                this.showBackToTop = window.pageYOffset > 300;
-            });
+            this.updateScrollPosition();
         },
 
         // --- Computed Properties (Getters) ---
@@ -127,10 +125,17 @@ document.addEventListener('alpine:init', () => {
         },
 
         scrollTo(id) {
-            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+            const target = document.getElementById(id);
+            if (!target) {
+                return;
+            }
+            target.scrollIntoView({ behavior: 'smooth' });
         },
         scrollTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        updateScrollPosition() {
+            this.showBackToTop = window.scrollY > 300;
         },
     }));
 });

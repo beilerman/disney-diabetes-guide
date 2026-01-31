@@ -14,7 +14,7 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800" x-data="menuApp()" x-cloak>
+<body class="bg-gray-50 text-gray-800" x-data="menuApp()" x-cloak @scroll.window="updateScrollPosition">
     <header class="bg-white shadow-md sticky top-0 z-20">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
@@ -199,8 +199,8 @@
         </button>
     </div>
 
-    <button x-show="showBackToTop" x-transition x-cloak @click="scrollTop" class="fixed bottom-24 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none">
-        ↑
+    <button x-show="showBackToTop" x-transition x-cloak @click="scrollTop" type="button" aria-label="Back to top" title="Back to top" class="fixed bottom-24 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <span aria-hidden="true">↑</span>
     </button>
 
     <footer class="bg-white mt-12 border-t">
